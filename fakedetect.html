@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FakeDetect — AI-Powered Misinformation Detection</title>
+  <link rel="stylesheet" href="./static/style.css">
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <div class="shield">FD</div>
+      <div>
+        <div class="brand">FakeDetect</div>
+        <div style="font-size:13px;color:var(--muted);">AI-Powered Misinformation Detection with Evidence-Based Explanations</div>
+      </div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:12px">
+      <button id="historyBtn" style="padding:8px 14px;border-radius:6px;border:1px solid rgba(16,24,40,0.1);background:white;cursor:pointer;font-weight:600">History</button>
+      <button id="loginBtn" style="padding:8px 14px;border-radius:6px;border:1px solid rgba(16,24,40,0.1);background:white;cursor:pointer;font-weight:600">Sign&nbsp;In</button>
+    </div>
+  </header>
+
+  <section class="tagline">
+    <div style="max-width:900px;margin:0 auto">
+      <div style="display:flex;gap:18px;align-items:center;justify-content:center;margin-bottom:6px">
+        <div style="display:flex;gap:12px;align-items:center">
+          <small style="background:#eaf6ee;padding:8px 10px;border-radius:6px;font-weight:600;color:var(--accent)">LLM-Powered Analysis</small>
+          <small style="background:#eef6ff;padding:8px 10px;border-radius:6px;font-weight:600;color:#1f6fb6">RAG-Enhanced Verification</small>
+          <small style="background:#fff3e9;padding:8px 10px;border-radius:6px;font-weight:600;color:#b95a00">Transparent Reasoning</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="hero">
+    <div class="card analyze">
+      <h3 style="margin:0 0 8px">Analyze Content</h3>
+      <div style="color:var(--muted);font-size:14px;margin-bottom:12px">Enter news text or provide a URL to check for potential misinformation</div>
+
+      <div class="tabs" role="tablist" aria-label="Input mode">
+        <div class="tab active" data-mode="text">Text Input</div>
+        <div class="tab" data-mode="url">URL Input</div>
+      </div>
+
+      <input class="input-small" id="urlInput" placeholder="Paste a news URL (visible when URL tab active)" style="display:none" />
+
+      <textarea id="newsText" placeholder="Paste the news article or claim you want to verify..."></textarea>
+
+      <div class="actions">
+        <button class="btn" id="analyzeBtn">Analyze Text</button>
+      </div>
+    </div>
+  </main>
+
+  <section class="how">
+    <h2>How FakeDetect Works</h2>
+    <div class="grid">
+      <div class="feature">
+        <div class="num">1</div>
+        <h3>Content Analysis</h3>
+        <div class="muted">Advanced NLP preprocessing extracts key features, metadata, and linguistic patterns from your input.</div>
+      </div>
+      <div class="feature">
+        <div class="num">2</div>
+        <h3>LLM Classification</h3>
+        <div class="muted">State-of-the-art language models assess credibility through context-sensitive semantic analysis.</div>
+      </div>
+      <div class="feature">
+        <div class="num">3</div>
+        <h3>Evidence Retrieval</h3>
+        <div class="muted">RAG pipeline retrieves supporting evidence from verified databases to ground predictions in facts.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    FakeDetect &mdash; Combating Misinformation with AI &amp; Transparency
+  </footer>
+
+  <script>
+    // Simple tab logic and placeholder behaviour
+    document.querySelectorAll('.tab').forEach(tab=>{
+      tab.addEventListener('click',()=>{
+        document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+        tab.classList.add('active');
+        const mode = tab.dataset.mode;
+        const url = document.getElementById('urlInput');
+        const txt = document.getElementById('newsText');
+        if(mode === 'url'){
+          url.style.display = 'block';
+          txt.style.display = 'none';
+          document.getElementById('analyzeBtn').textContent = 'Analyze URL';
+        } else {
+          url.style.display = 'none';
+          txt.style.display = 'block';
+          document.getElementById('analyzeBtn').textContent = 'Analyze Text';
+        }
+      })
+    });
+
+    document.getElementById("analyzeBtn").addEventListener("click", async () => {
+  const mode = document.querySelector('.tab.active').dataset.mode;
+
+  let payload = {};
+  if (mode === "url") {
+      const urlVal = document.getElementById("urlInput").value.trim();
+      if (!urlVal) return alert("Please paste a URL.");
+      payload = { url: urlVal };
+  } else {
+      const text = document.getElementById("newsText").value.trim();
+      if (!text) return alert("Please paste some text.");
+      payload = { text: text };
+  }
+
+  const response = await fetch("http://127.0.0.1:8000/factcheck", 
+  {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+  });
+
+  const data = await response.json();
+  console.log("FACTCHECK RESULTS:", data);
+
+  alert("Classification: " + data.classification + "\n\nReasoning:\n" + data.reasoning);
+});
+
+
+  </script>
+  
+
+  <!-- Login modal -->
+  <div id="loginModal" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:1000">
+    <div style="background:white;padding:26px;border-radius:8px;min-width:300px;box-shadow:var(--shadow)">
+      <h3 style="margin-top:0">Sign In</h3>
+      <input id="loginEmail" placeholder="Email" style="width:100%;padding:10px;margin-bottom:10px;border-radius:6px;border:1px solid rgba(16,24,40,0.1)">
+      <input id="loginPass" type="password" placeholder="Password" style="width:100%;padding:10px;margin-bottom:14px;border-radius:6px;border:1px solid rgba(16,24,40,0.1)">
+      <button id="loginConfirm" style="padding:10px 16px;width:100%;background:var(--accent);color:white;border:none;border-radius:6px;font-weight:600">Log In</button>
+    </div>
+  </div>
+
+  <!-- History panel -->
+  <div id="historyPanel" style="position:fixed;top:0;right:0;width:360px;height:100%;background:white;border-left:1px solid rgba(16,24,40,0.1);box-shadow:var(--shadow);padding:20px;display:none;overflow-y:auto;z-index:900">
+    <button id="closeHistory" aria-label="Close history" style="position:absolute;top:12px;right:12px;background:transparent;border:none;font-size:18px;cursor:pointer;color:var(--muted)">✕</button>
+    <h3 style="margin-top:0">History</h3>
+    <div id="historyList" style="font-size:14px;color:var(--muted)"></div>
+  </div>
+  </div>
+
+  <script>
+    const histBtn=document.getElementById('historyBtn');
+    const histPanel=document.getElementById('historyPanel');
+    const histList=document.getElementById('historyList');
+
+    function loadHistory(){
+      const h=JSON.parse(localStorage.getItem('fd_history')||'[]');
+      histList.innerHTML=h.length? h.map(x=>`<div style='margin-bottom:8px;'>• ${x}</div>`).join('') : 'No history yet.';
+    }
+
+    histBtn.onclick=()=>{loadHistory();histPanel.style.display='block'};
+    const closeHistBtn = document.getElementById('closeHistory');
+    if(closeHistBtn){ closeHistBtn.addEventListener('click', ()=> { histPanel.style.display='none'; }); }
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')histPanel.style.display='none'});
+
+    const loginBtn=document.getElementById('loginBtn');
+    const loginModal=document.getElementById('loginModal');
+    loginBtn.onclick=()=>loginModal.style.display='flex';
+    loginModal.onclick=e=>{if(e.target===loginModal)loginModal.style.display='none'};
+
+    document.getElementById('loginConfirm').onclick=()=>{
+      loginModal.style.display='none';
+    };
+
+    const analyze=document.getElementById('analyzeBtn');
+    analyze.addEventListener('click',()=>{
+      const mode=document.querySelector('.tab.active').dataset.mode;
+      const val= mode==='url' ? document.getElementById('urlInput').value.trim() : document.getElementById('newsText').value.trim();
+      if(!val)return;
+      const h=JSON.parse(localStorage.getItem('fd_history')||'[]');
+      h.unshift(`${new Date().toLocaleString()} — ${mode==='url'?'URL':'Text'} analyzed`);
+      localStorage.setItem('fd_history',JSON.stringify(h.slice(0,50)));
+    });
+  </script>
+</body>
+</html>
