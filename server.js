@@ -1,14 +1,18 @@
-import Groq from "groq-sdk";
 import express from "express";
 import bodyParser from "body-parser";
 import path from "path";
 import dotenv from "dotenv";
+import OpenAI from "openai";
 
 dotenv.config();
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const app = express();
 const PORT = 8000;
+
+// OpenAI client
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 app.use(bodyParser.json());
 app.use("/static", express.static(path.join(process.cwd(), "static")));
@@ -16,6 +20,14 @@ app.use("/static", express.static(path.join(process.cwd(), "static")));
 app.get("/", (req, res) => {
   res.sendFile(path.join(process.cwd(), "fakedetect.html"));
 });
+
+// Remove ```json and ```
+function cleanJSON(text) {
+  return text
+    .replace(/```json/g, "")
+    .replace(/```/g, "")
+    .trim();
+}
 
 app.post("/factcheck", async (req, res) => {
   const { text, url } = req.body;
@@ -25,26 +37,49 @@ app.post("/factcheck", async (req, res) => {
     return res.status(400).json({ error: "No text or URL provided" });
   }
 
+  const systemPrompt = `
+You are a fact-checking AI. Output ONLY valid JSON in this format:
+
+{
+  "classification": "REAL" or "FAKE",
+  "reasoning": "text",
+  "evidence": [
+    { "claim": "", "sources": [] }
+  ]
+}
+`;
+
   try {
-    const chatCompletion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile", // Або інша модель
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
       messages: [
-        {
-          role: "system",
-          content: "You are a fact-checking AI. Respond ONLY in JSON format.",
-        },
-        {
-          role: "user",
-          content: `Fact-check the following text:\n${content}`,
-        },
+        { role: "system", content: systemPrompt },
+        { role: "user", content: "Fact-check this:\n" + content },
       ],
+      temperature: 0.2,
     });
 
-    const output = chatCompletion.choices[0].message.content;
-    res.json(JSON.parse(output));
+    let responseText = completion.choices[0].message.content;
+
+    // Clean ```json markup
+    responseText = cleanJSON(responseText);
+
+    let json;
+    try {
+      json = JSON.parse(responseText);
+    } catch (err) {
+      console.error("JSON parse error:", responseText);
+      json = {
+        classification: "UNKNOWN",
+        reasoning: responseText,
+        evidence: [],
+      };
+    }
+
+    res.json(json);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Groq API request failed" });
+    res.status(500).json({ error: "Failed to contact OpenAI API" });
   }
 });
 
