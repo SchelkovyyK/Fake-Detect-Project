@@ -113,14 +113,41 @@
           style="display: none"
         />
 
-        <textarea
+        <textarea style="height: auto;"
           id="newsText"
           placeholder="Paste the news article or claim you want to verify..."
         ></textarea>
 
         <div class="actions">
-          <button class="btn" id="analyzeBtn">Analyze Text</button>
+          <button class="btn" id="analyzeBtn">
+            <span id="btnText">Analyze Text</span>
+            <!-- Remove style="display: none" from here -->
+            <span id="btnLoader" class="loader"></span>
+          </button>
         </div>
+      </div>
+      <!-- RESULTS PANEL -->
+      <div
+        id="resultsBox"
+        style="
+          display: none;
+          max-width: 900px;
+          margin: 20px auto;
+          background: #fff;
+          padding: 20px;
+          border-radius: 10px;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        "
+      >
+        <h3 style="margin-top: 0">Fact-Check Result</h3>
+
+        <div
+          id="resClass"
+          style="font-size: 18px; font-weight: 700; margin-bottom: 6px"
+        ></div>
+        <div id="resReason" style="margin-bottom: 12px; color: #555"></div>
+
+        <div id="resEvidence"></div>
       </div>
     </main>
 
@@ -157,75 +184,6 @@
     <footer>
       FakeDetect &mdash; Combating Misinformation with AI &amp; Transparency
     </footer>
-
-    <script>
-      // Simple tab logic and placeholder behaviour
-      document.querySelectorAll(".tab").forEach((tab) => {
-        tab.addEventListener("click", () => {
-          document
-            .querySelectorAll(".tab")
-            .forEach((t) => t.classList.remove("active"));
-          tab.classList.add("active");
-          const mode = tab.dataset.mode;
-          const url = document.getElementById("urlInput");
-          const txt = document.getElementById("newsText");
-          if (mode === "url") {
-            url.style.display = "block";
-            txt.style.display = "none";
-            document.getElementById("analyzeBtn").textContent = "Analyze URL";
-          } else {
-            url.style.display = "none";
-            txt.style.display = "block";
-            document.getElementById("analyzeBtn").textContent = "Analyze Text";
-          }
-        });
-      });
-
-      document
-        .getElementById("analyzeBtn")
-        .addEventListener("click", async () => {
-          const mode = document.querySelector(".tab.active").dataset.mode;
-
-          let payload = {};
-          if (mode === "url") {
-            const urlVal = document.getElementById("urlInput").value.trim();
-            if (!urlVal) return alert("Please paste a URL.");
-            payload = { url: urlVal };
-          } else {
-            const text = document.getElementById("newsText").value.trim();
-            if (!text) return alert("Please paste some text.");
-            payload = { text: text };
-          }
-
-          const response = await fetch("http://127.0.0.1:8000/factcheck", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-
-          let data;
-          try {
-            data = await response.json();
-          } catch {
-            alert(
-              "Server returned invalid JSON or failed. Check backend logs."
-            );
-            return;
-          }
-
-          if (data.error) {
-            alert("Server error: " + data.error);
-            return;
-          }
-
-          alert(
-            "Classification: " +
-              data.classification +
-              "\n\nReasoning:\n" +
-              data.reasoning
-          );
-        });
-    </script>
 
     <!-- Login modal -->
     <div
@@ -327,61 +285,9 @@
       <h3 style="margin-top: 0">History</h3>
       <div id="historyList" style="font-size: 14px; color: var(--muted)"></div>
     </div>
-    <script>
-      const histBtn = document.getElementById("historyBtn");
-      const histPanel = document.getElementById("historyPanel");
-      const histList = document.getElementById("historyList");
-
-      function loadHistory() {
-        const h = JSON.parse(localStorage.getItem("fd_history") || "[]");
-        histList.innerHTML = h.length
-          ? h
-              .map((x) => `<div style='margin-bottom:8px;'>• ${x}</div>`)
-              .join("")
-          : "No history yet.";
-      }
-
-      histBtn.onclick = () => {
-        loadHistory();
-        histPanel.style.display = "block";
-      };
-      const closeHistBtn = document.getElementById("closeHistory");
-      if (closeHistBtn) {
-        closeHistBtn.addEventListener("click", () => {
-          histPanel.style.display = "none";
-        });
-      }
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") histPanel.style.display = "none";
-      });
-
-      const loginBtn = document.getElementById("loginBtn");
-      const loginModal = document.getElementById("loginModal");
-      loginBtn.onclick = () => (loginModal.style.display = "flex");
-      loginModal.onclick = (e) => {
-        if (e.target === loginModal) loginModal.style.display = "none";
-      };
-
-      document.getElementById("loginConfirm").onclick = () => {
-        loginModal.style.display = "none";
-      };
-
-      const analyze = document.getElementById("analyzeBtn");
-      analyze.addEventListener("click", () => {
-        const mode = document.querySelector(".tab.active").dataset.mode;
-        const val =
-          mode === "url"
-            ? document.getElementById("urlInput").value.trim()
-            : document.getElementById("newsText").value.trim();
-        if (!val) return;
-        const h = JSON.parse(localStorage.getItem("fd_history") || "[]");
-        h.unshift(
-          `${new Date().toLocaleString()} — ${
-            mode === "url" ? "URL" : "Text"
-          } analyzed`
-        );
-        localStorage.setItem("fd_history", JSON.stringify(h.slice(0, 50)));
-      });
-    </script>
+    <!-- Replace the single script tag with these three -->
+    <script src="./static/modalAndHistory.js"></script>
+    <script src="./static/tabLogic.js"></script>
+    <script src="./static/analyzeLogic.js"></script>
   </body>
 </html>
