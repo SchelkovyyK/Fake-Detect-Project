@@ -65,7 +65,7 @@ header {
   border: 1px solid rgba(16, 24, 40, 0.06);
 }
 
-/* analyze form */
+
 .analyze {
   padding: 24px;
 }
@@ -124,18 +124,18 @@ textarea {
   font-weight: 700;
   cursor: pointer;
   min-width: 200px;
-  /* Add these styles for centering content */
+  
   display: flex;
   justify-content: center;
   align-items: center;
-  /* Add position relative for potential absolute positioning if needed */
+  
   position: relative;
 }
 .btn.loading #btnText {
   display: none;
 }
 
-/* How it works grid */
+
 .how {
   max-width: 1100px;
   margin: 36px auto 60px;
@@ -195,7 +195,7 @@ footer {
   }
 }
 
-/* Animation */
+
 
 .loader {
   height: 15px;
@@ -233,43 +233,4 @@ footer {
   100% {
     transform: scale(-1);
   }
-}
-/* .loader {
-  height: 15px;
-  aspect-ratio: 4;
-  --_g: no-repeat radial-gradient(farthest-side, #000 90%, #0000);
-  background: var(--_g) left, var(--_g) right;
-  background-size: 25% 100%;
-  display: none;
-}
-
-.loader:before,
-.loader:after {
-  content: "";
-  height: inherit;
-  aspect-ratio: 1;
-  grid-area: 1/1;
-  margin: auto;
-  border-radius: 50%;
-  transform-origin: -100% 50%;
-  background: #000;
-  animation: l49 1s infinite linear;
-}
-.loader:after {
-  transform-origin: 200% 50%;
-  --s: -1;
-  animation-delay: -0.5s;
-}
-@keyframes l49 {
-  58%,
-  100% {
-    transform: rotate(calc(var(--s, 1) * 1turn));
-  }
-} */
-
-.loader.is-active {
-  display: grid;
-}
-.btn.loading .loader {
-  display: grid; /* or inline-block */
 }

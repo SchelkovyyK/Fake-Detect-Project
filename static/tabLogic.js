@@ -1,4 +1,3 @@
-// ====== TAB LOGIC ======
 document.querySelectorAll(".tab").forEach((tab) => {
   tab.addEventListener("click", () => {
     document

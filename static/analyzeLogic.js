@@ -1,4 +1,3 @@
-// ====== ANALYZE BUTTON LOGIC ======
 document.getElementById("analyzeBtn").addEventListener("click", async () => {
   const mode = document.querySelector(".tab.active").dataset.mode;
   const btn = document.getElementById("analyzeBtn");
@@ -14,7 +13,6 @@ document.getElementById("analyzeBtn").addEventListener("click", async () => {
     payload = { text: text };
   }
 
-  // SHOW LOADER: Add the 'loading' class to the button
   btn.disabled = true;
   btn.style.opacity = "0.5";
   btn.classList.add("loading");
@@ -32,7 +30,6 @@ document.getElementById("analyzeBtn").addEventListener("click", async () => {
     data = null;
   }
 
-  // HIDE LOADER: Remove the 'loading' class from the button
   btn.classList.remove("loading");
   btn.disabled = false;
   btn.style.opacity = "1";
@@ -40,7 +37,6 @@ document.getElementById("analyzeBtn").addEventListener("click", async () => {
   if (!data) return;
   if (data.error) return alert("Server error: " + data.error);
 
-  // ===== DISPLAY RESULTS & SCROLL =====
   const resultsBox = document.getElementById("resultsBox");
   document.getElementById("resClass").textContent =
     data.classification || "Unknown";
@@ -59,10 +55,8 @@ document.getElementById("analyzeBtn").addEventListener("click", async () => {
     });
   }
   resultsBox.style.display = "block";
-  // Smoothly scroll to the results box once displayed
   resultsBox.scrollIntoView({ behavior: "smooth", block: "start" });
 
-  // ===== SAVE HISTORY =====
   const h = JSON.parse(localStorage.getItem("fd_history") || "[]");
   h.unshift(
     `${new Date().toLocaleString()} — ${

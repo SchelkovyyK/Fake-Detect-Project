@@ -1,7 +1,6 @@
-// ====== HISTORY PANEL ======
 const histBtn = document.getElementById("historyBtn");
 const histPanel = document.getElementById("historyPanel");
-const histList = document.getElementById("historyList"); // Corrected ID from previous code
+const histList = document.getElementById("historyList"); 
 
 function loadHistory() {
   const h = JSON.parse(localStorage.getItem("fd_history") || "[]");
@@ -26,7 +25,6 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") histPanel.style.display = "none";
 });
 
-// ====== LOGIN MODAL ======
 const loginBtn = document.getElementById("loginBtn");
 const loginModal = document.getElementById("loginModal");
 

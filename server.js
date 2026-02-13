@@ -11,21 +11,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Fix ES module paths
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Serve static CSS/JS/images
 app.use("/static", express.static(path.join(__dirname, "static")));
 
-// Serve your HTML homepage
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "fakedetect.html"));
 });
 
-// ===============================
-// GROQ FACT-CHECKING LOGIC
-// ===============================
 
 const client = new Groq({
   apiKey: process.env.GROQ_API_KEY,
@@ -76,9 +70,6 @@ You are an expert fact-checker. You should:
   }
 }
 
-// ===============================
-// API endpoint used by HTML page
-// ===============================
 
 app.post("/factcheck", async (req, res) => {
   try {
@@ -101,7 +92,6 @@ app.post("/factcheck", async (req, res) => {
   }
 });
 
-// Start server
 app.listen(8000, () => {
   console.log("Server running on http://127.0.0.1:8000");
 });
